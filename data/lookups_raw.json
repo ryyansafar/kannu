@@ -1,0 +1,332 @@
+{
+ "MPU6050": {
+  "part": "MPU-6050 (InvenSense/TDK) on GY-521 breakout",
+  "aliases": [
+   "GY-521",
+   "MPU6050",
+   "MPU-6050",
+   "MPU-60X0"
+  ],
+  "interface": "i2c",
+  "voltage_min": 3.3,
+  "voltage_max": 5.0,
+  "logic_level": 3.3,
+  "pins": [
+   {
+    "name": "VCC",
+    "role": "Module supply input to onboard 3.3 V LDO regulator (3.3-5 V; 5 V preferred per Arduino Playground because the regulator drops voltage when fed 3.3 V)"
+   },
+   {
+    "name": "GND",
+    "role": "Ground"
+   },
+   {
+    "name": "SCL",
+    "role": "I2C clock (host bus), onboard pull-up"
+   },
+   {
+    "name": "SDA",
+    "role": "I2C data (host bus), onboard pull-up"
+   },
+   {
+    "name": "XDA",
+    "role": "Auxiliary I2C master data (for external sensors such as a magnetometer)"
+   },
+   {
+    "name": "XCL",
+    "role": "Auxiliary I2C master clock"
+   },
+   {
+    "name": "AD0",
+    "role": "I2C address select LSB: low/floating=0x68, high=0x69"
+   },
+   {
+    "name": "INT",
+    "role": "Interrupt output"
+   }
+  ],
+  "i2c_addresses": [
+   "0x68",
+   "0x69"
+  ],
+  "id_register": "0x75",
+  "id_value": "0x68",
+  "read_sequence": "1) Optionally read WHO_AM_I (0x75); expect 0x68 (bits 6:1 = 0b110100, so it reads 0x68 whichever way AD0 is set). 2) The device starts in sleep mode (PWR_MGMT_1 0x6B resets to 0x40). Write 0x00 to 0x6B to wake it (or 0x01 to use the PLL with the X gyro as clock). 3) Burst-read 14 bytes starting at 0x3B: ACCEL_XOUT_H/L, ACCEL_YOUT_H/L, ACCEL_ZOUT_H/L (0x3B-0x40), TEMP_OUT_H/L (0x41-0x42), GYRO_XOUT_H/L, GYRO_YOUT_H/L, GYRO_ZOUT_H/L (0x43-0x48). Each value is a big-endian signed 16-bit integer. 4) Convert at the default ranges (ACCEL_CONFIG 0x1C AFS_SEL=0, GYRO_CONFIG 0x1B FS_SEL=0): accel_g = raw/16384 (8192, 4096 or 2048 LSB/g for ±4, ±8 or ±16 g); gyro_dps = raw/131 (65.5, 32.8 or 16.4 LSB/(°/s) for ±500, ±1000 or ±2000 °/s); temp_C = raw/340 + 36.53.",
+  "units": "g (acceleration), °/s (angular rate), °C (die temperature)",
+  "typical_range": [
+   -2,
+   2
+  ],
+  "notes": "Chip identification: GY-521 is a common breakout board for the InvenSense MPU-6050 6-axis IMU, and the module name comes from the board, not the chip. The chip itself runs on VDD 2.375-3.46 V and has a VLOGIC pin. It must never get 5 V directly. The GY-521 has an onboard 3.3 V regulator, so its VCC pin takes 3.3-5 V. The Arduino Playground says 3.3 V on VCC may leave the bus voltage too low after the regulator, and that 5 V is preferred. Raspberry Pi: power VCC from the Pi's 5 V pin. SDA and SCL then sit at about 3.3 V, so you can wire them straight to GPIO2 and GPIO3 with no level shifter. Inference, not confirmed from a GY-521 schematic: this assumes the onboard I2C pull-ups go to the regulated 3.3 V rail, as on common GY-521 boards. Check with a multimeter that SDA and SCL idle at no more than 3.3 V before connecting. Pull-up values vary from board to board (10k, 4k7 or 2k2 have been reported). Address: AD0 low or floating = 0x68 (b1101000), AD0 high = 0x69 (b1101001). WHO_AM_I still returns 0x68 when AD0 is high. typical_range covers acceleration at the default ±2 g. Default gyro range is ±250 °/s. Temperature sensor range is -40 to +85 °C. I2C runs at up to 400 kHz. Sources: the InvenSense datasheet and register map were fetched from SparkFun's CDN copies, because the TDK site served HTML to automated download.",
+  "source_urls": [
+   "https://cdn.sparkfun.com/datasheets/Components/General%20IC/PS-MPU-6000A.pdf",
+   "https://cdn.sparkfun.com/datasheets/Sensors/Accelerometers/RM-MPU-6000A.pdf",
+   "https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Datasheet1.pdf",
+   "https://invensense.tdk.com/wp-content/uploads/2015/02/MPU-6000-Register-Map1.pdf",
+   "https://playground.arduino.cc/Main/MPU-6050/"
+  ],
+  "confidence": 0.85
+ },
+ "DHT11": {
+  "part": "DHT11 (Aosong/ASAIR digital temperature & humidity sensor) on 3-pin breakout with on-board pull-up",
+  "interface": "digital",
+  "voltage_min": 3.0,
+  "voltage_max": 5.5,
+  "logic_level": 3.3,
+  "pins": [
+   {
+    "name": "VCC",
+    "role": "Supply 3-5.5 V DC. Use 3.3 V (Pi pin 1/17) on a Raspberry Pi, because the module's pull-up ties DATA to VCC"
+   },
+   {
+    "name": "DATA",
+    "role": "Bidirectional single-bus serial data (open-drain, idle high via on-board pull-up resistor) to a GPIO"
+   },
+   {
+    "name": "GND",
+    "role": "Ground"
+   }
+  ],
+  "i2c_addresses": [],
+  "id_register": null,
+  "id_value": null,
+  "read_sequence": "Proprietary single-bus protocol. It is NOT Dallas 1-Wire and NOT I2C. Wait 1 s after power-up. (1) Host drives DATA low for at least 18 ms (Adafruit lib uses 20 ms), then releases it (input/high) and waits 20-40 us. (2) DHT11 replies by holding the line low for 80 us, then high for 80 us. (3) DHT11 sends 40 bits, MSB first. Each bit starts with a 50 us low slot, then a high pulse: 26-28 us = 0, 70 us = 1 (a high pulse longer than the 50 us low slot means 1). (4) After the last bit the sensor holds the line low for 50 us, then the pull-up returns it to idle high. The 5 bytes are: b0=RH integer, b1=RH decimal, b2=T integer, b3=T decimal, b4=checksum. The frame is valid if b4 == (b0+b1+b2+b3) & 0xFF. Humidity %RH = b0 + b1*0.1. Temperature degC = b2 (+ b3*0.1). Resolution is 1 %RH and 1 degC. Sample no more often than once per second (Adafruit lib enforces 2 s).",
+  "units": "degC (temperature); %RH (relative humidity)",
+  "typical_range": [
+   0,
+   50
+  ],
+  "source_urls": [
+   "https://www.adafruit.com/datasheets/DHT11-chinese.pdf",
+   "https://www.circuitbasics.com/wp-content/uploads/2015/11/DHT11-Datasheet.pdf",
+   "https://cdn-learn.adafruit.com/downloads/pdf/dht.pdf",
+   "https://raw.githubusercontent.com/adafruit/DHT-sensor-library/master/DHT.cpp"
+  ],
+  "confidence": 0.85,
+  "aliases": [
+   "DHT-11",
+   "Aosong DHT11",
+   "ASAIR DHT11",
+   "KY-015 (common 3-pin DHT11 module)"
+  ],
+  "notes": "Chip identification: the module letters say DHT11 and the bare sensor is the 4-pin Aosong DHT11 (pins: 1 VDD, 2 DATA, 3 NC, 4 GND). The 3-pin breakout leaves out NC and adds a pull-up resistor (the datasheet recommends 5k for cables under 20 m). Pin ORDER on 3-pin breakouts differs by vendor (for example 'S + -' or 'VCC DATA GND'), so check the silkscreen. typical_range [0,50] is the temperature range in degC. Humidity range is 20-90 %RH (at 25 degC; 20-80 %RH at 50 degC). Accuracy is +/-2 degC and +/-5 %RH. Supply is 3-5.5 V DC (typ 5 V per datasheet). Raspberry Pi safety: the pull-up connects DATA to the module VCC. If you power the module from 5 V, DATA idles at 5 V and can damage the 3.3 V-only Pi GPIO. Power it from 3.3 V so the logic level is 3.3 V, or use a level shifter if you need 5 V supply. Adafruit notes 3.3 V is sometimes marginal with long wires. No I2C address and no ID register: the 40-bit frame has no identity byte. On the original DHT11 the decimal bytes are normally 0."
+ },
+ "LDR": {
+  "part": "LDR (photoresistor) light sensor module with LM393 comparator, 4-pin (VCC, GND, DO, AO)",
+  "aliases": [
+   "LDR sensor module",
+   "photoresistor module",
+   "LM393 light sensor module",
+   "photosensitive resistance sensor module"
+  ],
+  "interface": "digital",
+  "voltage_min": 3.3,
+  "voltage_max": 5,
+  "logic_level": 3.3,
+  "pins": [
+   {
+    "name": "VCC",
+    "role": "Supply input, 3.3-5 V. Power it from the Pi's 3.3 V pin (P1) so DO/AO never rise above 3.3 V"
+   },
+   {
+    "name": "GND",
+    "role": "Ground"
+   },
+   {
+    "name": "DO",
+    "role": "Digital output from the LM393 comparator. HIGH when light is below the trimpot threshold (dark), LOW when light meets or exceeds it (bright). Can connect straight to a Pi GPIO input only when VCC is 3.3 V"
+   },
+   {
+    "name": "AO",
+    "role": "Analog output: raw LDR voltage-divider voltage, 0 to VCC. The Pi has no analog input, so this needs an external ADC"
+   }
+  ],
+  "i2c_addresses": [],
+  "id_register": null,
+  "id_value": null,
+  "read_sequence": "No registers or commands: this module is not a bus device. Digital: wire VCC to Pi 3.3 V (pin 1), GND to pin 6, DO to a GPIO set as input (UUGear example: GPIO4, pin 7). Read the GPIO level: 1 (HIGH) = darker than threshold, 0 (LOW) = light at or above threshold. Set the threshold with the onboard trimpot. Analog (optional): AO gives a voltage between 0 and VCC that goes down as light goes up (the comparator output goes LOW as the divider voltage drops below the threshold). Read it with an external ADC: V = raw / (2^bits - 1) * Vref. That voltage is relative brightness only, not lux.",
+  "units": "digital logic level (0 = bright/at or above threshold, 1 = dark/below threshold)",
+  "typical_range": [
+   0,
+   1
+  ],
+  "notes": "The chip is a TI-style LM393 dual comparator. Its datasheet gives a supply range of 2-36 V. The module itself is sold for 3.3-5 V (UUGear: '3~5V'; Electroduino: '5V or 3.3V DC'). The module outputs follow the module's VCC; this is my inference from the board circuit, not stated directly in the sources. So for a Raspberry Pi, power VCC from 3.3 V, never 5 V, because 5 V on DO would put 5 V on a GPIO that is not 5 V tolerant. If the module must run at 5 V, add a level shifter or a voltage divider on DO. No I2C address and no ID register. The LDR resistance goes down as light goes up. DO polarity is from the UUGear and Electroduino module pages. Pin order and silkscreen labels vary between vendors (D/A, DO/AO, D0/A0). Some 3-pin versions have no AO.",
+  "source_urls": [
+   "https://www.ti.com/lit/ds/symlink/lm393.pdf",
+   "https://www.ti.com/product/LM393",
+   "https://www.uugear.com/portfolio/using-light-sensor-module-with-raspberry-pi/",
+   "https://www.electroduino.com/ldr-sensor-module-how-ldr-sensor-works/"
+  ],
+  "confidence": 0.75
+ },
+ "IR": null,
+ "SSD1306": {
+  "part": "SSD1306 (Solomon Systech 128x64 dot-matrix OLED controller) on a generic 0.96 inch 128x64 I2C OLED module",
+  "aliases": [
+   "SSD1306",
+   "0.96 inch OLED 128x64",
+   "Adafruit 326",
+   "SSD1306 I2C OLED"
+  ],
+  "interface": "i2c",
+  "voltage_min": 3.0,
+  "voltage_max": 5.0,
+  "logic_level": 3.3,
+  "pins": [
+   {
+    "name": "GND",
+    "role": "Ground"
+   },
+   {
+    "name": "VCC",
+    "role": "Module supply (3-5 V on boards with an onboard 3.3 V regulator; use 3.3 V from the Pi)"
+   },
+   {
+    "name": "SCL",
+    "role": "I2C clock (SSD1306 D0)"
+   },
+   {
+    "name": "SDA",
+    "role": "I2C data (SSD1306 D1/SDAIN tied to D2/SDAOUT)"
+   }
+  ],
+  "i2c_addresses": [
+   "0x3C",
+   "0x3D"
+  ],
+  "id_register": null,
+  "id_value": null,
+  "read_sequence": "This is a write-only display, not a sensor. Nothing is measured and there is no identity register. In I2C mode every transfer is START, address 0x3C/0x3D with R/W#=0, a control byte, then payload. Control byte 0x00 means the following bytes are commands (Co=0, D/C#=0). Control byte 0x40 means the following bytes are GDDRAM data (D/C#=1). Init sequence from the datasheet app note: AEh (display off), D5h 80h (oscillator), A8h 3Fh (MUX ratio, 64 rows), D3h 00h (display offset), 40h (start line), 8Dh 14h (enable charge pump), A0h/A1h (segment remap), C0h/C8h (COM scan direction), DAh xx (COM pins config; the app note example uses 02h, set it for your panel per datasheet section 10.1.18), 81h 7Fh (contrast), A4h (follow RAM), A6h (normal, not inverted), AFh (display on). To draw: 20h 00h (horizontal addressing), 21h 00h 7Fh (columns 0-127), 22h 00h 07h (pages 0-7), then send 0x40 followed by 1024 data bytes. Each byte is one column of 8 vertical pixels in a page, LSB is the top row. Pixel (x,y) maps to byte index x + (y/8)*128, bit (y mod 8). Use the Pi detection check i2cdetect -y 1, which should show 3c (or 3d).",
+  "units": "pixel column index (x; 128x64 panel, y 0-63 in 8 pages of 8 rows)",
+  "typical_range": [
+   0,
+   127
+  ],
+  "notes": "I2C 7-bit address is 0b011110 + SA0. The D/C# pin acts as SA0: SA0=0 gives 0x3C, SA0=1 gives 0x3D. On generic modules a solder jumper or resistor on the back ties D/C#. It is often silk-screened with the 8-bit form 0x78/0x7A, and most ship at 0x3C. Adafruit's 128x64 boards default to 0x3D. Chip limits: VDD logic supply is 1.65-3.3 V (absolute max 4 V), and input pins are rated VSS-0.3 to VDD+0.3 V. VIH is at least 0.8*VDD and VIL at most 0.2*VDD, so signals are 3.3 V logic. The internal charge pump (VBAT 3.3-4.2 V) makes the ~7.5 V panel voltage (VCC 7-15 V), so no external high voltage is needed on modules. The module's 3-5 V supply range depends on an onboard regulator (Adafruit says its boards are 5 V-ready; the older Adafruit 0.96 inch v1 is not). Many cheap clones vary, and their SDA/SCL pull-ups go to the VCC pin. For a Raspberry Pi (3.3 V, not 5 V tolerant), power VCC from the Pi 3.3 V pin (pin 1) so that the bus pull-ups can never pull above 3.3 V. Never feed 5 V into VCC while SDA/SCL go to the Pi unless you have verified that the pull-ups sit on the regulated 3.3 V rail. Pin order on 4-pin modules varies (GND-VCC-SCL-SDA or VCC-GND-SCL-SDA), so read the silkscreen. Datasheet: status register read (D6=1 display OFF, D6=0 ON) is not provided in serial mode, and GDDRAM cannot be read back over serial. A 0.96 inch size could also be a 128x32 variant (MUX A8h 1Fh), which is unverified for your exact board.",
+  "source_urls": [
+   "https://cdn-shop.adafruit.com/datasheets/SSD1306.pdf",
+   "https://learn.adafruit.com/monochrome-oled-breakouts/power-requirements",
+   "https://learn.adafruit.com/monochrome-oled-breakouts/wiring-128x64-oleds",
+   "https://www.adafruit.com/product/326",
+   "https://www.kernel.org/doc/Documentation/devicetree/bindings/display/solomon,ssd1307fb.yaml"
+  ],
+  "confidence": 0.8
+ },
+ "LCD1602": {
+  "part": "16x2 HD44780-compatible character LCD with PCF8574 (or PCF8574A) I2C I/O-expander backpack",
+  "aliases": [
+   "LCD1602 I2C",
+   "1602A + PCF8574T backpack",
+   "PCF8574AT LCD backpack",
+   "HD44780 I2C LCD"
+  ],
+  "interface": "i2c",
+  "voltage_min": 2.7,
+  "voltage_max": 5.5,
+  "logic_level": 5,
+  "pins": [
+   {
+    "name": "GND",
+    "role": "Ground"
+   },
+   {
+    "name": "VCC",
+    "role": "Supply for PCF8574 + LCD + backlight (usually 5 V; the backpack's I2C pull-ups go to this rail)"
+   },
+   {
+    "name": "SDA",
+    "role": "I2C data (pulled up to VCC on the backpack)"
+   },
+   {
+    "name": "SCL",
+    "role": "I2C clock (pulled up to VCC on the backpack)"
+   }
+  ],
+  "i2c_addresses": [
+   "0x20",
+   "0x21",
+   "0x22",
+   "0x23",
+   "0x24",
+   "0x25",
+   "0x26",
+   "0x27",
+   "0x38",
+   "0x39",
+   "0x3A",
+   "0x3B",
+   "0x3C",
+   "0x3D",
+   "0x3E",
+   "0x3F"
+  ],
+  "id_register": null,
+  "id_value": null,
+  "read_sequence": "This is an output device. It has no measurement or ID register. The PCF8574 has no registers: each 1-byte I2C write to the 7-bit address sets pins P7..P0, and a 1-byte read returns the pin states. Common backpack mapping (LiquidCrystal_I2C source): P0=RS (0x01), P1=RW (0x02), P2=EN (0x04), P3=backlight (0x08), P4..P7=LCD D4..D7. To send a byte V to the HD44780 in 4-bit mode with mode=RS (0 for a command, 1 for data) and BL=0x08: for each nibble, high first then low, compute out=(nibble<<4)|mode|BL, then write out|EN followed by out&~EN (an EN pulse). The bytes sent are (V&0xF0)|mode|BL and ((V<<4)&0xF0)|mode|BL. Initialization per the HD44780 datasheet: send nibble 0x3 three times, then 0x2 (enter 4-bit mode), then commands 0x28 (function set: 4-bit, 2 lines, 5x8), 0x0C (display on), 0x01 (clear, wait at least 1.52 ms), 0x06 (entry mode). Set the cursor with command 0x80|addr (line 1 addr 0x00-0x0F, line 2 addr 0x40-0x4F), then write character codes as data (RS=1). You can read the busy flag back with RW=1, but most code just waits instead.",
+  "units": "HD44780 character code (byte written as data; 16 columns x 2 rows)",
+  "typical_range": [
+   32,
+   126
+  ],
+  "notes": "The chip is identified by the 'PCF8574' letters on the backpack. It drives a standard HD44780(U)-compatible 1602 LCD in 4-bit mode. ADDRESS: PCF8574/PCF8574T uses 0x20-0x27 and PCF8574A/PCF8574AT uses 0x38-0x3F. The address is set by pins A0, A1 and A2 (the A0/A1/A2 solder jumpers on the backpack). Boards usually ship with all three high, which typically gives 0x27 (PCF8574) or 0x3F (PCF8574A). Run i2cdetect -y 1 to confirm. VOLTAGE: the PCF8574 runs from 2.5 to 6 V (TI) and the HD44780U from 2.7 to 5.5 V (Hitachi), so 2.7-5.5 V is the shared chip range. Most generic 1602 glass and backlights are made for 5 V, and on a 3.3 V supply the contrast is often too weak unless you have a 3.3 V variant. Treat the module as 5 V. RASPBERRY PI WARNING: with VCC=5 V, the backpack's on-board pull-ups hold SDA/SCL at 5 V, which can damage the Pi's 3.3 V GPIO. Also, the PCF8574 VIH is 0.7xVCC (3.5 V at 5 V), so a 3.3 V high is below spec. Use a bidirectional I2C level shifter (MOSFET/PCA9306-type), or remove the backpack's pull-ups and rely on the Pi's 3.3 V pull-ups. The second option is out of spec for VIH and not guaranteed. The 4-pin header order (GND, VCC, SDA, SCL) is typical but varies, so check the silkscreen. The pot on the backpack sets contrast, and the jumper enables the backlight.",
+  "source_urls": [
+   "https://www.ti.com/lit/ds/symlink/pcf8574.pdf",
+   "https://www.nxp.com/docs/en/data-sheet/PCF8574_PCF8574A.pdf",
+   "https://cdn-shop.adafruit.com/datasheets/HD44780.pdf",
+   "https://raw.githubusercontent.com/johnrickman/LiquidCrystal_I2C/master/LiquidCrystal_I2C.h",
+   "https://raw.githubusercontent.com/johnrickman/LiquidCrystal_I2C/master/LiquidCrystal_I2C.cpp"
+  ],
+  "confidence": 0.8
+ },
+ "MQ135": {
+  "part": "MQ-135 (Hanwei/Winsen SnO2 semiconductor air-quality gas sensor) on a 4-pin breakout module (VCC, GND, DO, AO) with an on-board load resistor, a potentiometer and a comparator for DO",
+  "aliases": [
+   "MQ135",
+   "SNS-MQ135",
+   "MQ-135 Air Quality Sensor Module",
+   "Waveshare MQ-135 Gas Sensor"
+  ],
+  "interface": "analog",
+  "voltage_min": 4.9,
+  "voltage_max": 5.1,
+  "logic_level": 5,
+  "pins": [
+   {
+    "name": "VCC",
+    "role": "Supply. The heater needs 5.0 V ±0.1 V (datasheet VH, and Vc at standard test conditions); the heater draws up to about 800–950 mW, so take it from the Pi 5 V pin, not 3.3 V"
+   },
+   {
+    "name": "GND",
+    "role": "Ground"
+   },
+   {
+    "name": "DO",
+    "role": "Digital output from the comparator; switches when AO crosses the potentiometer threshold. Swings 0 V / VCC (5 V TTL), so it needs a level shifter or divider before a Pi GPIO"
+   },
+   {
+    "name": "AO",
+    "role": "Analog output 0–VCC (0–5 V), the voltage across the load resistor RL. The Pi has no ADC: use an external ADC and keep its input at or below 3.3 V (divider or ADC range)"
+   }
+  ],
+  "i2c_addresses": [],
+  "id_register": null,
+  "id_value": null,
+  "read_sequence": "No registers or commands; this is a resistive analog sensor. 1) Power at 5.0 V and preheat (datasheet: over 24 h (Hanwei) / 48 h (Winsen) burn-in before calibrating). 2) Read the AO voltage Vout with an external ADC. If a divider is used, Vout = Vadc × (R1+R2)/R2. 3) Sensor resistance: Rs = RL × (Vc − Vout) / Vout, with Vc = 5.0 V and RL the module's load resistor (the GeorgK library assumes 10 kΩ; boards vary, so measure yours). 4) Calibrate R0 in clean air. GeorgK library CO2 fit: R0 = Rs × (ATMOCO2/PARA)^(1/PARB), with PARA = 116.6020682, PARB = 2.769034857, ATMOCO2 = 397.13 ppm. 5) Concentration: ppm = PARA × (Rs/R0)^(−PARB). DO alternative: read it as a GPIO (after level shifting) for a threshold-only yes/no reading.",
+  "units": "ppm (gas concentration from Rs/R0; the raw AO reading is 0–5 V)",
+  "typical_range": [
+   10,
+   1000
+  ],
+  "notes": "Chip ID: the letters 'MQ-135' name the sensing element itself (Hanwei/Winsen SnO2 tube). The 4-pin VCC/GND/DO/AO board is the common breakout: load resistor + sensitivity pot + comparator for DO. Voltage: the manufacturer datasheets give heater voltage VH = 5.0 V ±0.1 V and Vc = 5 V ±0.1 V at standard test conditions (Winsen allows loop voltage Vc ≤ 24 V DC), so supply is 4.9–5.1 V. Waveshare lists its board as 2.5–5.0 V, but below 5 V the heater runs outside datasheet conditions and the curves do not apply. Raspberry Pi safety: powered at 5 V, AO reaches 0–5 V and DO is 0/5 V (Components101), so neither may go straight into a 3.3 V Pi pin. Use an external ADC for AO with a divider (or ADC supply/range) so its input stays at or below 3.3 V, and a divider or level shifter on DO. Accuracy: the sensor is cross-sensitive (NH3, NOx, alcohol, benzene, smoke, CO2), strongly affected by temperature and humidity, and needs per-unit calibration. Datasheet detection ranges: 10–300 ppm NH3, 10–1000 ppm benzene, 10–300 ppm alcohol (Hanwei); 10–1000 ppm (Winsen). The ppm formula constants come from the GeorgK library fit, not the datasheet, and the library itself notes the datasheet correction info 'seems to be wrong'. DO polarity and the RL value vary by board vendor and were not verified for a specific board. No I2C, no ID register.",
+  "source_urls": [
+   "https://www.winsen-sensor.com/d/files/PDF/Semiconductor%20Gas%20Sensor/MQ135%20(Ver1.4)%20-%20Manual.pdf",
+   "https://www.olimex.com/Products/Components/Sensors/Gas/SNS-MQ135/resources/SNS-MQ135.pdf",
+   "https://www.electronicoscaldas.com/datasheet/MQ-135_Hanwei.pdf",
+   "https://components101.com/sensors/mq135-gas-sensor-for-air-quality",
+   "https://www.waveshare.com/wiki/MQ-135_Gas_Sensor",
+   "https://raw.githubusercontent.com/GeorgK/MQ135/master/MQ135.h",
+   "https://raw.githubusercontent.com/GeorgK/MQ135/master/MQ135.cpp"
+  ],
+  "confidence": 0.8
+ }
+}

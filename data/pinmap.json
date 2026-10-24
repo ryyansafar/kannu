@@ -1,0 +1,9 @@
+{
+  "i2c": {"SDA": {"bcm": 2, "pin": 3}, "SCL": {"bcm": 3, "pin": 5}},
+  "onewire": {"DATA": {"bcm": 4, "pin": 7}},
+  "spi": {"MOSI": {"bcm": 10, "pin": 19}, "MISO": {"bcm": 9, "pin": 21}, "SCLK": {"bcm": 11, "pin": 23}, "CE0": {"bcm": 8, "pin": 24}},
+  "power_3v3": [1, 17],
+  "power_5v": [2, 4],
+  "ground": [6, 9, 14, 20, 25, 30, 34, 39],
+  "free_gpio": [{"bcm": 17, "pin": 11}, {"bcm": 27, "pin": 13}, {"bcm": 22, "pin": 15}, {"bcm": 23, "pin": 16}, {"bcm": 24, "pin": 18}, {"bcm": 25, "pin": 22}]
+}

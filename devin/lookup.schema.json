@@ -1,0 +1,111 @@
+{
+ "type": "object",
+ "properties": {
+  "part": {
+   "type": "string"
+  },
+  "aliases": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "interface": {
+   "type": "string",
+   "enum": [
+    "i2c",
+    "onewire",
+    "digital",
+    "analog",
+    "spi",
+    "uart"
+   ]
+  },
+  "voltage_min": {
+   "type": "number"
+  },
+  "voltage_max": {
+   "type": "number"
+  },
+  "logic_level": {
+   "type": "number"
+  },
+  "pins": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "properties": {
+     "name": {
+      "type": "string"
+     },
+     "role": {
+      "type": "string"
+     }
+    },
+    "required": [
+     "name",
+     "role"
+    ]
+   }
+  },
+  "i2c_addresses": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "id_register": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "id_value": {
+   "type": [
+    "string",
+    "null"
+   ]
+  },
+  "read_sequence": {
+   "type": "string"
+  },
+  "units": {
+   "type": "string"
+  },
+  "typical_range": {
+   "type": "array",
+   "items": {
+    "type": "number"
+   },
+   "minItems": 2,
+   "maxItems": 2
+  },
+  "notes": {
+   "type": "string"
+  },
+  "source_urls": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "confidence": {
+   "type": "number",
+   "minimum": 0,
+   "maximum": 1
+  }
+ },
+ "required": [
+  "part",
+  "interface",
+  "voltage_min",
+  "voltage_max",
+  "logic_level",
+  "pins",
+  "read_sequence",
+  "units",
+  "typical_range",
+  "source_urls",
+  "confidence"
+ ]
+}

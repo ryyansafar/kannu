@@ -1,0 +1,14 @@
+{
+  "mpu6050": {"part": "MPU6050", "aliases": ["GY-521", "MPU-6050"], "interface": "i2c",
+    "addresses": ["0x68", "0x69"], "id_register": "0x75", "id_values": {"0x68": "MPU6050", "0x70": "MPU6500 (clone)", "0x71": "MPU9250"},
+    "logic_level": 3.3, "voltage": [3.3, 5.0], "source": "seed, verify with lookup"},
+  "ssd1306": {"part": "SSD1306 OLED", "aliases": ["0.96 OLED"], "interface": "i2c",
+    "addresses": ["0x3c", "0x3d"], "id_register": null, "logic_level": 3.3, "voltage": [3.3, 5.0], "source": "seed"},
+  "pcf8574_lcd": {"part": "16x2 LCD with PCF8574 backpack", "aliases": ["LCD1602 I2C"], "interface": "i2c",
+    "addresses": ["0x27", "0x3f"], "id_register": null, "logic_level": 5.0, "voltage": [5.0, 5.0], "source": "seed"},
+  "bmp280": {"part": "BMP280", "aliases": ["BME280"], "interface": "i2c",
+    "addresses": ["0x76", "0x77"], "id_register": "0xd0", "id_values": {"0x58": "BMP280", "0x60": "BME280"},
+    "logic_level": 3.3, "voltage": [1.7, 3.6], "source": "seed"},
+  "ds3231": {"part": "DS3231 RTC", "aliases": [], "interface": "i2c",
+    "addresses": ["0x68"], "id_register": null, "logic_level": 3.3, "voltage": [3.3, 5.0], "source": "seed"}
+}
